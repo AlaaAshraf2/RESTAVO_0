@@ -21,8 +21,8 @@
   ],
   "env": {
     // يجب تعيين هذه القيم في إعدادات البيئة (Environment Variables) في لوحة تحكم Vercel
-    "SECRET_KEY": "@restavo_secret_key",
-    "GEMINI_API_KEY": "@gemini_api_key",
+    "SECRET_KEY": "kjgtuyf*ytdS$rtyuf/fu675e65d",
+    "GEMINI_API_KEY": "AIzaSyBi4uXeDhPvoWD6QMKr0qXiKo3YpIbWijY",
     "FLASK_ENV": "production" 
   }
 }
