@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restavo | حجز فنادق ذكي</title>
+    
+    <!-- CSS Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="/assets/css/style.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-color': '#59451b',
+                        'brand-text': '#59451b',
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body class="bg-gray-50 text-gray-800 font-sans antialiased overflow-x-hidden">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="hotel" class="text-brand-color w-8 h-8"></i>
+                    <span class="text-2xl font-bold text-brand-color">Restavo</span>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <button id="user-profile-btn" class="hidden flex items-center gap-2 text-sm font-semibold text-gray-700 hover:text-brand-color transition">
+                        <i data-lucide="user-circle" class="w-5 h-5"></i>
+                        <span id="user-name-display"></span>
+                    </button>
+
+                    <button id="favorites-toggle-btn" class="relative p-2 hover:bg-gray-100 rounded-full text-gray-600 transition">
+                        <i data-lucide="heart" class="w-6 h-6"></i>
+                        <span id="favorites-count" class="absolute top-0 right-0 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center opacity-0 transition">0</span>
+                    </button>
+
+                    <button id="bookings-toggle-btn" class="p-2 hover:bg-gray-100 rounded-full text-gray-600 transition">
+                        <i data-lucide="calendar-check" class="w-6 h-6"></i>
+                    </button>
+
+                    <button id="auth-action-btn" class="flex items-center gap-2 bg-brand-color text-white px-4 py-2 rounded-full text-sm font-medium hover:opacity-90 transition shadow-md">
+                        <i data-lucide="user" class="w-4 h-4"></i>
+                        <span>حسابي</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Profile Sidebar (Fixed Logic) -->
+    <div id="profile-sidebar" class="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out border-l border-gray-200">
+        <div class="p-6 h-full flex flex-col">
+            <div class="flex justify-between items-center mb-8 border-b pb-4">
+                <h2 class="text-2xl font-bold text-brand-color flex items-center gap-2">
+                    <i data-lucide="settings" class="w-6 h-6"></i> الملف الشخصي
+                </h2>
+                <button id="profile-close-btn" class="text-gray-500 hover:bg-gray-100 p-2 rounded-full">
+                    <i data-lucide="x" class="w-6 h-6"></i>
+                </button>
+            </div>
+
+            <form id="profile-form" class="space-y-4 flex-1 overflow-y-auto" onsubmit="return false;">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني</label>
+<input type="email" id="profile-email" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-brand-color outline-none">                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">الاسم الكامل</label>
+                    <input type="text" id="profile-fullname" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-brand-color outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">رقم الهاتف</label>
+                    <input type="text" id="profile-phone" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-brand-color outline-none">
+                </div>
+                <div class="border-t pt-4 mt-4">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">تغيير كلمة المرور (اختياري)</label>
+                    <input type="password" id="profile-password" placeholder="اتركه فارغاً إذا لم ترد التغيير" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-brand-color outline-none">
+                </div>
+                
+            </form>
+
+            <div class="mt-auto pt-4 border-t space-y-3">
+                <button id="save-profile-btn" class="w-full bg-brand-color text-white font-bold py-3 rounded-lg hover:opacity-90 transition flex justify-center items-center gap-2">
+                    <i data-lucide="save" class="w-5 h-5"></i> حفظ التغييرات
+                </button>
+                <button id="sidebar-logout-btn" class="w-full bg-red-50 text-red-600 font-bold py-3 rounded-lg hover:bg-red-100 transition flex justify-center items-center gap-2">
+                    <i data-lucide="log-out" class="w-5 h-5"></i> تسجيل الخروج
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="sidebar-overlay" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity"></div>
+
+    <!-- Hero Section -->
+    <header class="relative bg-gray-900 py-24 px-4 sm:px-6 lg:px-8 flex items-center justify-center" 
+            style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('/assets/images/commercial-ozone-generator.jpg.webp'); background-size: cover; background-position: center;">
+        
+        <div class="bg-white/95 backdrop-blur-sm p-8 rounded-2xl shadow-2xl w-full max-w-4xl">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-6 text-center">ابحث عن إقامتك المثالية</h1>
+            
+            <form id="search-form" class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div class="md:col-span-1">
+                    <label class="block text-sm font-bold text-gray-700 mb-1">الوجهة</label>
+                    <select id="city" class="w-full rounded-lg border-gray-300 border p-3 focus:ring-2 focus:ring-brand-color outline-none">
+                        <option value="Dubai">دبي (Dubai)</option>
+                        <option value="Cairo">القاهرة (Cairo)</option>
+                        <option value="Riyadh">الرياض (Riyadh)</option>
+                        <option value="London">لندن (London)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">الوصول</label>
+                    <input type="date" id="check_in" class="w-full rounded-lg border-gray-300 border p-3 focus:ring-2 focus:ring-brand-color outline-none">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">المغادرة</label>
+                    <input type="date" id="check_out" class="w-full rounded-lg border-gray-300 border p-3 focus:ring-2 focus:ring-brand-color outline-none">
+                </div>
+                <div class="flex items-end">
+                    <button type="submit" class="w-full bg-brand-color text-white font-bold py-3 px-4 rounded-lg hover:bg-[#4a3a16] transition shadow-lg flex justify-center items-center gap-2">
+                        <i data-lucide="search" class="w-5 h-5"></i> ابحث
+                    </button>
+                </div>
+            </form>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 border-b pb-2">نتائج البحث</h2>
+        <div id="hotel-cards-list" class="space-y-4">
+            <p class="text-center text-gray-500 py-10">قم باختيار وجهة للبحث عن الفنادق...</p>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <p>&copy; 2025 فريق مطوري Restavo. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <!-- Modals -->
+
+    <!-- Auth Modal -->
+    <div id="auth-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 class="text-lg font-bold text-brand-color">مصادقة المستخدم</h3>
+                <button id="auth-close-btn" class="p-1 hover:bg-gray-100 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6">
+                <div class="flex mb-6 border-b">
+                    <button id="login-tab" class="flex-1 pb-2 text-center font-bold border-b-2 border-brand-color text-brand-text">دخول</button>
+                    <button id="register-tab" class="flex-1 pb-2 text-center text-gray-500 hover:text-brand-text">حساب جديد</button>
+                </div>
+                <form id="auth-form" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">البريد الإلكتروني</label>
+                        <input type="email" id="email" required class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-brand-color outline-none mt-1">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700">كلمة المرور</label>
+                        <input type="password" id="password" required class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-brand-color outline-none mt-1">
+                    </div>
+                    <div id="age-container" class="hidden mt-4">
+                    <label class="block text-sm font-medium text-gray-700">السن</label>
+                    <input type="number" id="age" min="1" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-brand-color outline-none mt-1" placeholder="يجب أن يكون 18+">
+                </div>
+                    <p id="auth-error-message" class="text-red-500 text-sm hidden text-center"></p>
+                    <button type="submit" id="auth-submit-btn" class="w-full bg-brand-color text-white font-bold py-3 rounded-lg hover:opacity-90 transition">تسجيل الدخول</button>
+
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Favorites Modal -->
+    <div id="favorites-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex justify-end">
+        <div class="bg-white w-full max-w-md h-full shadow-2xl flex flex-col animate-in slide-in-from-right duration-300">
+            <div class="p-4 bg-brand-color text-white flex justify-between items-center shadow-md">
+                <h3 id="favorites-title" class="font-bold text-lg">المفضلة</h3>
+                <button id="favorites-close-btn" class="hover:bg-white/20 p-1 rounded-full"><i data-lucide="x"></i></button>
+            </div>
+            <div id="favorites-list" class="flex-1 overflow-y-auto p-4 space-y-2"></div>
+        </div>
+    </div>
+
+    <!-- Bookings Modal -->
+    <div id="bookings-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl w-full max-w-2xl h-[80vh] flex flex-col shadow-2xl overflow-hidden">
+            <div class="p-4 border-b flex justify-between items-center bg-gray-50">
+                <h3 class="font-bold text-lg text-brand-color">حجوزاتي</h3>
+                <button id="bookings-close-btn" class="hover:bg-gray-200 p-1 rounded-full"><i data-lucide="x"></i></button>
+            </div>
+            <div id="bookings-list" class="flex-1 overflow-y-auto p-4 bg-gray-50/50"></div>
+        </div>
+    </div>
+
+    <!-- AI Analysis Modal -->
+    <div id="ai-analysis-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in h-screen zoom-in-95 duration-200">
+            <div class="p-6">
+                <div class="flex justify-between items-center pb-3 border-b mb-4">
+                    <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2"><i data-lucide="brain-circuit" class="w-6 h-6 text-brand-color"></i> تحليل الحجز بالذكاء الاصطناعي</h3>
+                    <button id="ai-analysis-close-btn" class="p-1 hover:bg-gray-100 rounded-full text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+                
+                <div id="ai-analysis-content" class="min-h-[150px] text-gray-700">
+                    <p class="text-center p-10">جاري التحميل...</p>
+                </div>
+                
+                <p class="text-xs text-gray-400 mt-4 text-center">التحليل مقدم بواسطة نموذج Gemini 2.5 Flash.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Bot -->
+    <div class="fixed bottom-6 right-6 z-40">
+        <button id="chat-toggle-btn" class="bg-green-600 hover:bg-green-700 text-white p-4 rounded-full shadow-lg transition transform hover:scale-110 flex items-center gap-2">
+            <i data-lucide="message-circle" class="w-6 h-6"></i>
+            <span class="hidden md:inline font-bold">مساعد السفر</span>
+        </button>
+    </div>
+
+    <div id="chat-window" class="fixed bottom-24 right-6 w-80 md:w-96 bg-white rounded-2xl shadow-2xl border border-gray-200 z-40 hidden flex flex-col overflow-hidden h-96">
+        <div class="bg-brand-color text-white p-3 font-bold text-center">Restavo AI Assistant</div>
+        <div id="chat-messages" class="flex-1 p-4 overflow-y-auto space-y-2 bg-gray-50 text-sm">
+            <div class="flex justify-start">
+                <div class="bg-gray-200 text-gray-700 p-2 rounded-lg max-w-[85%]">مرحباً! كيف يمكنني مساعدتك في تخطيط رحلتك اليوم؟</div>
+            </div>
+        </div>
+        <div class="p-3 border-t flex gap-2 bg-white">
+            <input type="text" id="chat-input" placeholder="اكتب سؤالك هنا..." class="flex-1 border rounded-full px-4 py-2 text-sm focus:ring-2 focus:ring-brand-color outline-none">
+            <button id="chat-send-btn" class="bg-brand-color text-white p-2 rounded-full hover:opacity-90"><i data-lucide="send" class="w-4 h-4"></i></button>
+        </div>
+    </div>
+    <div id="booking-confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+            <div class="p-6">
+                <div class="flex justify-between items-start border-b pb-3 mb-4">
+                    <h3 class="text-xl font-bold text-brand-color flex items-center gap-2">
+                        <i data-lucide="calendar-plus" class="w-6 h-6"></i> تأكيد الحجز
+                    </h3>
+                    <button id="booking-confirm-close-btn" class="p-1 hover:bg-gray-100 rounded-full text-gray-500"><i data-lucide="x" class="w-5 h-5"></i></button>
+                </div>
+
+                <div id="booking-details-content" class="space-y-3 mb-6 text-gray-700">
+                    <p class="font-semibold text-lg" id="confirm-hotel-name"></p>
+                    <p class="text-sm text-gray-500" id="confirm-city"></p>
+                    <div id="name-input-group" class="pt-3 border-t">
+    <label class="block text-sm font-bold text-gray-700 mb-1" for="confirm-name-input">
+        ⚠️ يرجى إدخال اسم الحجز (الاسم الكامل)
+    </label>
+    <input type="text" id="confirm-name-input" placeholder="مثال: أحمد محمد" required
+           class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-right">
+</div>
+
+                    <div id="phone-input-group" class="hidden pt-3 border-t">
+        <label class="block text-sm font-bold text-gray-700 mb-1" for="confirm-phone-input">
+            ⚠️ يرجى إدخال رقم الهاتف لإتمام الحجز
+        </label>
+        <input type="text" id="confirm-phone-input" placeholder="مثال: 01xxxxxxxxx"
+               class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-red-500 outline-none text-right"
+               dir="ltr">
+    </div>
+                    <p class="text-sm"><span class="font-bold">الوصول:</span> <span id="confirm-check-in"></span></p>
+                    <p class="text-sm"><span class="font-bold">المغادرة:</span> <span id="confirm-check-out"></span></p>
+                    <p class="text-2xl font-extrabold text-green-700 pt-2 border-t mt-3">
+                        <span id="confirm-price"></span>
+                        <span class="text-base text-gray-400 font-normal"> / ليلة</span>
+                    </p>
+                </div>
+
+                <button id="confirm-booking-btn" class="w-full bg-green-600 text-white font-bold py-3 rounded-lg hover:bg-green-700 transition flex justify-center items-center gap-2">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i> تأكيد وإتمام الحجز
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- Toast Notification -->
+    <div id="toast-message" class="opacity-0 transition-opacity duration-300 pointer-events-none"></div>
+
+    <script type="module" src="/assets/js/script.js"></script>
+</body>
+</html>
