@@ -1,0 +1,6 @@
+Flask
+Flask-Cors
+Flask-Login
+python-dotenv
+google-generativeai
+werkzeug
