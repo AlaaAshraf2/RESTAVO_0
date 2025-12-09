@@ -1,0 +1,28 @@
+// vercel.json
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "app.py",
+      "use": "@vercel/python"
+    }
+  ],
+  "routes": [
+    // توجيه جميع المسارات التي تبدأ بـ /api إلى ملف الخادم app.py
+    {
+      "src": "/api/(.*)",
+      "dest": "app.py"
+    },
+    // توجيه المسار الجذري (/) وأي ملف ثابت (مثل assets/css) إلى ملف index.html
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
+  ],
+  "env": {
+    // يجب تعيين هذه القيم في إعدادات البيئة (Environment Variables) في لوحة تحكم Vercel
+    "SECRET_KEY": "@restavo_secret_key",
+    "GEMINI_API_KEY": "@gemini_api_key",
+    "FLASK_ENV": "production" 
+  }
+}
