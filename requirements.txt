@@ -1,0 +1,6 @@
+# requirements.txt
+Flask
+Flask-CORS
+Flask-Login
+werkzeug
+google-genai
